@@ -1,12 +1,12 @@
 
 ########### Python 2.7 #############
-import httplib, urllib, base64
+import httplib, urllib, base64, json
 
 def load_binary(file):
     with open(file, 'rb') as file:
         return file.read()
 
-def faceDetect(path):
+def face_detect(path):
     headers = {
         # Request headers
         'Content-Type': 'application/octet-stream',
@@ -27,14 +27,20 @@ def faceDetect(path):
         conn.request("POST", "/face/v1.0/detect?%s" % params, body, headers)
         response = conn.getresponse()
         data = response.read()
-        print(data)
+        jObj = json.loads(data)
+        genders = []
+
+        for face in jObj:
+            genders.append(face['faceAttributes']['gender'])
+
         conn.close()
+        return genders
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
 
 def main():
-    faceDetect("001.jpg")
+    face_detect("001.jpg")
     return 0
 
 if __name__ == "__main__":
