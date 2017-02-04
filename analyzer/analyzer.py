@@ -2,10 +2,14 @@
 ########### Python 2.7 #############
 import httplib, urllib, base64
 
+def load_binary(file):
+    with open(file, 'rb') as file:
+        return file.read()
+
 def faceDetect(path):
     headers = {
         # Request headers
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/octet-stream',
         'Ocp-Apim-Subscription-Key': 'ad68d0b1e1f2455e9410495d5b1c9d2f',
     }
 
@@ -16,7 +20,7 @@ def faceDetect(path):
         'returnFaceAttributes': 'age,gender',
     })
 
-    body = "{ 'url' : 'http://weknowyourdreams.com/images/people/people-06.jpg' }"
+    body = load_binary(path)
 
     try:
         conn = httplib.HTTPSConnection('westus.api.cognitive.microsoft.com')
@@ -28,12 +32,10 @@ def faceDetect(path):
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
-    return data
 
-
-def main()
-    print "main()"
+def main():
+    faceDetect("001.jpg")
     return 0
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()
