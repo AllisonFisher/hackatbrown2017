@@ -2,9 +2,13 @@
 ########### Python 2.7 #############
 import httplib, urllib, base64
 
+def load_binary(file):
+    with open(file, 'rb') as file:
+        return file.read()
+
 headers = {
     # Request headers
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/octet-stream',
     'Ocp-Apim-Subscription-Key': 'ad68d0b1e1f2455e9410495d5b1c9d2f',
 }
 
@@ -15,7 +19,7 @@ params = urllib.urlencode({
     'returnFaceAttributes': 'age,gender',
 })
 
-body = "{ 'url' : 'http://weknowyourdreams.com/images/people/people-06.jpg' }"
+body = load_binary("001.jpg")
 
 try:
     conn = httplib.HTTPSConnection('westus.api.cognitive.microsoft.com')
@@ -26,3 +30,5 @@ try:
     conn.close()
 except Exception as e:
     print("[Errno {0}] {1}".format(e.errno, e.strerror))
+
+
