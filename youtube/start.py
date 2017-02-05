@@ -1,10 +1,11 @@
-# python script to download youtube video and split it into frames
+#script to download youtube video and split it into frames
 
 import sys
 import getopt
 import re
 import os
 import subprocess
+import shutil
 
 # make metadata file for frames
 def export_metadata(data):
@@ -40,28 +41,28 @@ def main(argv):
   print 'Output fps:', output_fps
 
   video_id = ""
-
   match = re.search(r'((?<=(v|V)/)|(?<=be/)|(?<=(\?|\&)v=)|(?<=embed/))([\w-]+)', input_url)
+  
   if match:
     video_id = match.group(0)
   else:
     print 'Invalid youtube url.'
     sys.exit()
 
-  os.mkdir(video_id)
-  os.system('youtube-dl {} -o \'{}/video.%(ext)s\''.format(input_url, video_id, video_id))
+  if not os.path.exists(video_id):
+    os.mkdir(video_id)
+    os.system('youtube-dl {} -o \'{}/video.%(ext)s\''.format(input_url, video_id, video_id))
+  else:
+    shutil.rmtree('{}/frames'.format(video_id))
 
-  frame_data = {}
+  #frame_data = {}
 
   os.mkdir('{}/frames'.format(video_id))
-  cmd = 'ffmpeg -i {}/video.mp4 -vf fps={} -f image2 {}/frames/%03d.jpg'.format(video_id, output_fps, video_id)
+  cmd = 'ffmpeg -i {}/video.* -vf fps={} -f image2 {}/frames/%03d.jpg'.format(video_id, output_fps, video_id)
   os.system(cmd)
 
   #for line in run_process(cmd):
   #  print (line)
 
-
 if __name__ == "__main__":
   main(sys.argv[1:])
-
-
