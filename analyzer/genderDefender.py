@@ -1,11 +1,9 @@
 from __future__ import division
-import analyzer
+import analyzer, uuid
 
-def main():
-	group_id = "id15"
 
-	num_frames = 24
-
+def analyze(num_frames, folder_path):
+	group_id = str(uuid.uuid4())
 	analyzer.create_group(group_id, "gender group")
 
 	frames_with_people = num_frames
@@ -23,7 +21,7 @@ def main():
 	first = False
 
 	for x in range(1,num_frames + 1):
-		results = analyzer.face_detect("img/v2/%03d.jpg" % x)	
+		results = analyzer.face_detect("%s/%03d.jpg" % (folder_path,x))	
 		genders.extend(results[0])
 		ids.extend(results[1])
 		metaDatas.extend(results[2])
@@ -75,6 +73,9 @@ def main():
 
 	print("Average per frame - m: %s, f: %s" % (avg_male, avg_female))
 	print(list(set(ids)))
+
+def main():
+	analyze(24, "img/v2")
 	return 0
 
 if __name__ == "__main__":
