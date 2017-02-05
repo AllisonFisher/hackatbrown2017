@@ -9,8 +9,46 @@ def load_binary(file):
     with open(file, 'rb') as file:
         return file.read()
 
+def identify_ids_in_group(face_ids, group_id, meta_datas):
+    headers = {
+        # Request headers
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': subKey,
+    }
+
+    body = json.dumps({"personGroupId" : group_id, "faceIds" : face_ids})
+
+    conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+    conn.request("POST", "/face/v1.0/identify", body, headers)
+    response = conn.getresponse()
+    data = response.read().decode('utf-8')
+    jObj = json.loads(data)
+    print(jObj)
+    for face in jObj:
+        if(len(face["candidates"]) > 0):
+            personToAdd = face["candidates"][0]["personId"]
+            add_face(group_id, personToAdd, meta_datas[face["faceId"]])
+    train_group(group_id)        
+            
+
+def train_group(group_id):
+    headers = {
+        # Request headers
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': subKey,
+    }
+
+    body = ""
+
+    conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+    conn.request("POST", "/face/v1.0/persongroups/%s/train" % group_id, body, headers)
+    response = conn.getresponse()
+    data = response.read().decode('utf-8')
+    
+    return data == ""
+
+
 def create_person(person_name, group_id, meta_data):
-    print("creating person") 
     headers = {
         # Request headers
         'Content-Type': 'application/json',
@@ -19,18 +57,18 @@ def create_person(person_name, group_id, meta_data):
 
     body = '{"name" : "%s"}' % person_name
 
-
     conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
     conn.request("POST", "/face/v1.0/persongroups/%s/persons" % group_id, body, headers)
     response = conn.getresponse()
     data = response.read().decode('utf-8')
     jObj = json.loads(data)
 
-    print(jObj)
     personId = jObj["personId"]
     conn.close()
 
     add_face(group_id, personId, meta_data)
+
+    return personId
 
     
 def add_face(group_id, personId, meta_data):
@@ -67,27 +105,17 @@ def create_group(group_id, group_name):
 
     body = '{"name" : "%s"}' % group_name
 
-    conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
-    conn.request("PUT", "/face/v1.0/persongroups/%s" % group_id, body, headers)
-    response = conn.getresponse()
-    data = response.read().decode('utf-8')
-    print(data)
+    try:
+        conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+        conn.request("PUT", "/face/v1.0/persongroups/%s" % group_id, body, headers)
+        response = conn.getresponse()
+        data = response.read().decode('utf-8')
+        conn.close()
 
-    jObj = json.loads(data)
-    genders = []
-    ids = []
-    metaData = []
-
-
-    for face in jObj:
-        genders.append(face['faceAttributes']['gender'])
-        ids.append(face['faceId'])
-        fr = face['faceRectangle']
-        rectString = "%s,%s,%s,%s" % (fr['left'],fr['top'],fr['width'],fr['height'])
-        metaData.append({"img" : body, "targetFace" : rectString})
-
-    conn.close()
-    return (genders,ids,metaData)
+        return data == ""
+        
+    except Exception as e:
+        print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
 
 
 def compare_ids(id1, id2):
@@ -168,7 +196,7 @@ def face_detect(path):
     genders = []
     ids = []
     metaData = []
-
+    metaDict = {}
 
     for face in jObj:
         genders.append(face['faceAttributes']['gender'])
@@ -176,9 +204,10 @@ def face_detect(path):
         fr = face['faceRectangle']
         rectString = "%s,%s,%s,%s" % (fr['left'],fr['top'],fr['width'],fr['height'])
         metaData.append({"img" : body, "targetFace" : rectString})
+        metaDict[face['faceId']] = {"img" : body, "targetFace" : rectString}
 
     conn.close()
-    return (genders,ids,metaData)
+    return (genders,ids,metaData,metaDict)
 
 def face_detect_raw(path, retFaceId='true', retFaceLandmarks='true', retFaceAttributes='age,gender'):
     headers = {
@@ -205,4 +234,3 @@ def face_detect_raw(path, retFaceId='true', retFaceLandmarks='true', retFaceAttr
     except Exception as e:
         print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
     
-
