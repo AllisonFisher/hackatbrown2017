@@ -25,19 +25,19 @@ class RaceGroup(Enum):
     hispanic_latino = 5
 
 def initDemographicFaceGroup():
-    print("called init")
+    #print("called init")
     data_dir = '../demographic_faces/'
     flag_path = os.path.join(data_dir, 'flag.txt')
    
     with open(flag_path, 'r') as file:
         f = file.readline()
     # we've already populated the demographics, read it from the pickle file
-    if len(f) > 4:
+    '''if len(f) > 4:
         print("Loading previously initialized mapping...")
         with open('demographic_mapping_color.pickle', 'rb') as handle:
             mapping = pickle.load(handle)
-    else:
-    #if True:
+    else:'''
+    if True:
         print("Making mapping from scratch...")
         mapping = {
             RaceGroup.american_indian_alaskan_native: [],
@@ -157,7 +157,7 @@ def analyze(num_frames, folder_path):
                     num_males = num_males + 1
                 elif gender == "female":
                     num_females = num_females + 1
-                print(analyzer.create_person("person", group_id, metaDatas[i]))           
+                analyzer.create_person("person", group_id, metaDatas[i])          
                 pass
             analyzer.train_group(group_id)
             pass
@@ -198,10 +198,10 @@ def analyze(num_frames, folder_path):
 
     stats = {"avg_male" : avg_male, "avg_female" : avg_female, "num_male" : num_males, "num_female" : num_females}
 
-    race_stats = ""
+    race_stats = []
 
     for i in range(len(raceCount)):
-        race_stats += ("estimated_"+raceMasterList[i]+": "+str(raceCount[i])+"\n")
+        race_stats.append("estimated_"+raceMasterList[i]+": "+str(raceCount[i]))
             
 
     return (stats, race_stats)
