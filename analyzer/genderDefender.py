@@ -2,7 +2,7 @@ from __future__ import division
 import analyzer
 
 def main():
-	group_id = "id1"
+	group_id = "id3"
 
 	num_frames = 66
 
@@ -30,8 +30,9 @@ def main():
                         # On the first pass, create a new person for each
 			personId = personId + 1
 			for i in range(0,len(genders)):
-                                analyzer.create_person("person%s" % personId, group_id, metaDatas[i])           
+                                print(analyzer.create_person("person%s" % personId, group_id, metaDatas[i]))           
                                 pass
+			analyzer.train_group(group_id)
 			pass
 		else:
 			pass
