@@ -24,9 +24,9 @@ We use the Face API from Microsoft's Cognitive Services to track people across f
 ## Extensions and Future Work
 
 * Use the Microsoft Cognitive Services Speech and Language APIs to implement an automated Bechdel test for videos (determining the number of conversations that two female characters have about something other than a man/boy).
-* Package our analyzer into a Chrome extension that offers a pop-up diversity report for all images and videos on a webpage.
+* Package our tool into a Chrome extension that offers a pop-up diversity report for all images and videos on a webpage.
 * Enhance our racial diversity metrics, through machine learning and user annotation.
-* Track and display diversity trends in a user's media consumption (or content creator's media production) over time.
+* Track and display diversity trends in a user's media consumption (or content creator's media production) over time. Add a gallery to browse Diversity Scorecards of popular TV shows, broadcasts, and movies.
 * Use our tool to boost video recommendations that promote diversity, or to target ads more closely based on user diversity viewing trends.
 
 
