@@ -18,18 +18,20 @@ def main():
 	metaDatas = []
 
 	personId = 0
+	first = False
 
 	for x in range(1,num_frames + 1):
 		results = analyzer.face_detect("img/ot/%03d.jpg" % x)	
 		genders.extend(results[0])
 		ids.extend(results[1])
 		metaDatas.extend(results[2])
-		if x == 1:
-			# On the first pass, create a new person for each
+		if len(genders) > 0 and first == False:
+			first = True
+                        # On the first pass, create a new person for each
 			personId = personId + 1
-			for i in xrange(1,len(genders)):
-				analyzer.create_person("person%s" % personId, group_id, metaDatas[i])
-				pass
+			for i in range(0,len(genders)):
+                                analyzer.create_person("person%s" % personId, group_id, metaDatas[i])           
+                                pass
 			pass
 		else:
 			pass
@@ -44,10 +46,6 @@ def main():
 		else:
 			frames_with_people = frames_with_people - 1
 		i = i + 1
-		pass
-
-	for x in xrange(0,len(ids) - 1):
-		analyzer.compare_ids(ids[x], ids[x+1])
 		pass
 
 	avg_male = int(round(male_frames / frames_with_people))

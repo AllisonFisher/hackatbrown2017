@@ -9,6 +9,7 @@ def load_binary(file):
         return file.read()
 
 def create_person(person_name, group_id, meta_data):
+    print("creating person") 
     headers = {
         # Request headers
         'Content-Type': 'application/json',
@@ -99,7 +100,7 @@ def compare_ids(id1, id2):
         conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
         conn.request("POST", "/face/v1.0/verify", body, headers)
         response = conn.getresponse()
-        data = response.read()
+        data = response.read().decode('utf-8')
         jObj = json.loads(data)
         
         # print jObj
