@@ -29,15 +29,15 @@ def initDemographicFaceGroup():
     data_dir = '../demographic_faces/'
     flag_path = os.path.join(data_dir, 'flag.txt')
    
-    '''with open(flag_path, 'r') as file:
+    with open(flag_path, 'r') as file:
         f = file.readline()
     # we've already populated the demographics, read it from the pickle file
     if len(f) > 4:
         print("Loading previously initialized mapping...")
         with open('demographic_mapping_color.pickle', 'rb') as handle:
             mapping = pickle.load(handle)
-    else:'''
-    if True:
+    else:
+    #if True:
         print("Making mapping from scratch...")
         mapping = {
             RaceGroup.american_indian_alaskan_native: [],
@@ -64,16 +64,13 @@ def initDemographicFaceGroup():
                     face_detect_data = analyzer.face_detect_raw(full_path, 'true', 'false', '')
                     detect_json = json.loads(face_detect_data)
                     for face in detect_json:
-                        print (face)
-                        try:
-                            faceId = face['faceId']
-                            key = dirs[dirname]
-                            mapping[key].append(faceId)
-                        except:
-                            pass
+
+                        faceId = face['faceId']
+                        key = dirs[dirname]
+                        mapping[key].append(faceId)
         
-        '''with open('demographic_mapping_color.pickle', 'wb') as handle:
-            pickle.dump(mapping, handle, protocol=pickle.HIGHEST_PROTOCOL)'''
+        with open('demographic_mapping_color.pickle', 'wb') as handle:
+            pickle.dump(mapping, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         with open(flag_path, 'w') as file:
             file.write('FLAG!\n')

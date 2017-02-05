@@ -186,7 +186,7 @@ def face_find_similar(faceId, demographicFaceList):
         'mode': 'matchFace'
         })
 
-    #print(body)
+    print(body)
 
     try:
         conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
