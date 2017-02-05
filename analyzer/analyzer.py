@@ -8,8 +8,39 @@ def load_binary(file):
     with open(file, 'rb') as file:
         return file.read()
 
+def identify_ids_in_group(face_ids, group_id):
+    headers = {
+        # Request headers
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': subKey,
+    }
+
+    body = '{"personGroupId" : "%s", "faceIds" : ' + face_ids + '}' % (group_id, face_ids)
+
+    conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+    conn.request("POST", "/face/v1.0/identify", body, headers)
+    response = conn.getresponse()
+    data = response.read().decode('utf-8')
+    jObj = json.loads(data)
+
+def train_group(group_id):
+    headers = {
+        # Request headers
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': subKey,
+    }
+
+    body = ""
+
+    conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+    conn.request("POST", "/face/v1.0/persongroups/%s/train" % group_id, body, headers)
+    response = conn.getresponse()
+    data = response.read().decode('utf-8')
+    
+    return data == ""
+
+
 def create_person(person_name, group_id, meta_data):
-    print("creating person") 
     headers = {
         # Request headers
         'Content-Type': 'application/json',
@@ -18,14 +49,12 @@ def create_person(person_name, group_id, meta_data):
 
     body = '{"name" : "%s"}' % person_name
 
-
     conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
     conn.request("POST", "/face/v1.0/persongroups/%s/persons" % group_id, body, headers)
     response = conn.getresponse()
     data = response.read().decode('utf-8')
     jObj = json.loads(data)
 
-    print(jObj)
     personId = jObj["personId"]
 
     headers = {
@@ -37,6 +66,8 @@ def create_person(person_name, group_id, meta_data):
     conn.close()
 
     add_face(group_id, personId, meta_data)
+
+    return personId
 
     
 def add_face(group_id, personId, meta_data):
