@@ -2,8 +2,8 @@ import os
 import analyzer 
 import pickle
 import uuid
-from enum import Enum
 import json
+from start import RaceGroup
 
 
 # faceIds is a list of faceIds (returned from faceFind)
@@ -16,28 +16,22 @@ raceMasterList = ['american_indian_alaskan_native',
 'hispanic_latino']
 
 # Pythonic enum?
-class RaceGroup(Enum):
-    american_indian_alaskan_native = 0
-    asian = 1
-    black_african_american = 2
-    native_hawaiian_other_pacific_islander = 3
-    white = 4
-    hispanic_latino = 5
+
 
 def initDemographicFaceGroup():
     #print("called init")
     data_dir = '../demographic_faces/'
     flag_path = os.path.join(data_dir, 'flag.txt')
    
-    '''with open(flag_path, 'r') as file:
+    with open(flag_path, 'r') as file:
         f = file.readline()
     # we've already populated the demographics, read it from the pickle file
     if len(f) > 4:
         print("Loading previously initialized mapping...")
         with open('demographic_mapping_color.pickle', 'rb') as handle:
             mapping = pickle.load(handle)
-    else:'''
-    if True:
+    else:
+    #if True:
         print("Making mapping from scratch...")
         mapping = {
             RaceGroup.american_indian_alaskan_native: [],
@@ -72,8 +66,8 @@ def initDemographicFaceGroup():
                         except:
                             pass
         
-        '''with open('demographic_mapping_color.pickle', 'wb') as handle:
-            pickle.dump(mapping, handle, protocol=pickle.HIGHEST_PROTOCOL)'''
+        with open('demographic_mapping_color.pickle', 'wb') as handle:
+            pickle.dump(mapping, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         with open(flag_path, 'w') as file:
             file.write('FLAG!\n')
@@ -197,9 +191,13 @@ def analyze(num_frames, folder_path):
         pass
 
 
+    if frames_with_people > 0:
+        avg_male = male_frames / frames_with_people
+        avg_female = female_frames / frames_with_people
+    else:
+        avg_male = 0
+        avg_female = 0
 
-    avg_male = male_frames / frames_with_people
-    avg_female = female_frames / frames_with_people
 
     stats = {"avg_male" : avg_male, "avg_female" : avg_female, "num_male" : num_males, "num_female" : num_females}
 

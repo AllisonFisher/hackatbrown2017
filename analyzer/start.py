@@ -6,7 +6,16 @@ import re
 import os
 import subprocess
 import shutil
+from enum import Enum
 import race
+
+class RaceGroup(Enum):
+    american_indian_alaskan_native = 0
+    asian = 1
+    black_african_american = 2
+    native_hawaiian_other_pacific_islander = 3
+    white = 4
+    hispanic_latino = 5
 
 def main(argv):
   input_url = '' 
