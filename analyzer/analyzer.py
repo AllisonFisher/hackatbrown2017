@@ -73,9 +73,28 @@ def create_person(person_name, group_id, meta_data):
     personId = jObj["personId"]
     conn.close()
 
-    add_face(group_id, personId, meta_data)
+    added = add_face(group_id, personId, meta_data)
+
+    if not added:
+        delete_person(personI, group_id)
 
     return personId
+
+def delete_person(person_id, group_id):
+    headers = {
+        # Request headers
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': subKey,
+    }
+
+    body = ""
+
+    conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+    conn.request("POST", "/face/v1.0/persongroups/%s/persons/%i" % (group_id, person_id), body, headers)
+    response = conn.getresponse()
+    data = response.read().decode('utf-8')
+    
+    return data == ""
 
     
 def add_face(group_id, personId, meta_data):
@@ -101,6 +120,8 @@ def add_face(group_id, personId, meta_data):
 
     print(data)
     conn.close()
+
+    return not "error" in data
 
 
 def create_group(group_id, group_name):
