@@ -8,20 +8,27 @@ def load_binary(file):
     with open(file, 'rb') as file:
         return file.read()
 
-def identify_ids_in_group(face_ids, group_id):
+def identify_ids_in_group(face_ids, group_id, meta_datas):
     headers = {
         # Request headers
         'Content-Type': 'application/json',
         'Ocp-Apim-Subscription-Key': subKey,
     }
 
-    body = '{"personGroupId" : "%s", "faceIds" : ' + face_ids + '}' % (group_id, face_ids)
+    body = json.dumps({"personGroupId" : group_id, "faceIds" : face_ids})
 
     conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
     conn.request("POST", "/face/v1.0/identify", body, headers)
     response = conn.getresponse()
     data = response.read().decode('utf-8')
     jObj = json.loads(data)
+    print(jObj)
+    for face in jObj:
+        if(len(face["candidates"]) > 0):
+            personToAdd = face["candidates"][0]["personId"]
+            add_face(group_id, personToAdd, meta_datas[face["faceId"]])
+    train_group(group_id)        
+            
 
 def train_group(group_id):
     headers = {
@@ -165,7 +172,7 @@ def face_detect(path):
     genders = []
     ids = []
     metaData = []
-
+    metaDict = {}
 
     for face in jObj:
         genders.append(face['faceAttributes']['gender'])
@@ -173,7 +180,8 @@ def face_detect(path):
         fr = face['faceRectangle']
         rectString = "%s,%s,%s,%s" % (fr['left'],fr['top'],fr['width'],fr['height'])
         metaData.append({"img" : body, "targetFace" : rectString})
+        metaDict[face['faceId']] = {"img" : body, "targetFace" : rectString}
 
     conn.close()
-    return (genders,ids,metaData)
+    return (genders,ids,metaData,metaDict)
     
