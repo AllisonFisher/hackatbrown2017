@@ -185,10 +185,6 @@ def analyze(num_frames, folder_path):
 
         pass
 
-    print("This many people: %s. %s males, %s females." % (faceId, num_males, num_females))
-    print("Race data: ")
-    print(raceCount)
-
     i = 0
     for gender in genders:  
         if gender == "male":
@@ -203,12 +199,13 @@ def analyze(num_frames, folder_path):
     avg_male = male_frames / frames_with_people
     avg_female = female_frames / frames_with_people
 
-    print("Average per frame - m: %s, f: %s" % (avg_male, avg_female))
-    print(list(set(ids)))
-    return 0
+    
+    stats = {"avg_male" : avg_male, "avg_female" : avg_female, "num_male" : num_males, "num_female" : num_females}
+
+    return stats
 
 def main():
-    analyze(24, "img/v2")
+    print(analyze(24, "img/v2"))
     return 0
 
 if __name__ == "__main__":
