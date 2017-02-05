@@ -1,8 +1,9 @@
-
-########### Python 2.7 #############
-import http.client, urllib.request, urllib.parse, urllib.error, base64, json, binascii
-
+import http.client, urllib.request, urllib.parse, urllib.error, base64, json, binascii, ssl
 subKey = 'ad68d0b1e1f2455e9410495d5b1c9d2f'
+
+#THIS IS VERY BAD. TODO: FIX ASAP
+ssl._create_default_https_context = ssl._create_unverified_context
+
 
 def load_binary(file):
     with open(file, 'rb') as file:
@@ -63,13 +64,6 @@ def create_person(person_name, group_id, meta_data):
     jObj = json.loads(data)
 
     personId = jObj["personId"]
-
-    headers = {
-        # Request headers
-        'Content-Type': 'application/octet-stream',
-        'Ocp-Apim-Subscription-Key': subKey,
-    }
-
     conn.close()
 
     add_face(group_id, personId, meta_data)
@@ -123,6 +117,7 @@ def create_group(group_id, group_name):
     except Exception as e:
         print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
 
+
 def compare_ids(id1, id2):
     headers = {
         # Request headers
@@ -140,10 +135,39 @@ def compare_ids(id1, id2):
         response = conn.getresponse()
         data = response.read().decode('utf-8')
         jObj = json.loads(data)
-        
-        # print jObj
-
         conn.close()
+        return data == ""   
+    except Exception as e:
+        print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
+
+def face_find_similar(faceId, demographicFaceList):
+
+    headers = {
+        # Request headers
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': subKey,
+    }
+
+    params = urllib.parse.urlencode({
+    })
+
+    body = json.dumps({
+        "faceId": faceId,
+        'faceIds': demographicFaceList,
+        'maxNumOfCandidatesReturned': 10,
+        'mode': 'matchFace'
+        })
+
+    #print(body)
+
+    try:
+        conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+        conn.request("POST", "/face/v1.0/findsimilars?%s" % params, body, headers)
+        response = conn.getresponse()
+        data = response.read()
+        print(data)
+        conn.close()
+        return data
     except Exception as e:
         print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
 
@@ -184,4 +208,29 @@ def face_detect(path):
 
     conn.close()
     return (genders,ids,metaData,metaDict)
+
+def face_detect_raw(path, retFaceId='true', retFaceLandmarks='true', retFaceAttributes='age,gender'):
+    headers = {
+        # Request headers
+        'Content-Type': 'application/octet-stream',
+        'Ocp-Apim-Subscription-Key': subKey,
+    }
+
+    params = urllib.parse.urlencode({
+        # Request parameters
+        'returnFaceId': retFaceId,
+        'returnFaceLandmarks': retFaceLandmarks,
+        'returnFaceAttributes': retFaceAttributes,
+    })
+
+    body = load_binary(path)
+    try:
+        conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+        conn.request("POST", "/face/v1.0/detect?%s" % params, body, headers)
+        response = conn.getresponse()
+        data = response.read().decode('utf-8')
+        conn.close()
+        return data
+    except Exception as e:
+        print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
     

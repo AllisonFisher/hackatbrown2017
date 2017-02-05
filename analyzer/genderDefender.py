@@ -2,7 +2,7 @@ from __future__ import division
 import analyzer
 
 def main():
-	group_id = "id6"
+	group_id = "id8"
 
 	num_frames = 66
 
