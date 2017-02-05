@@ -30,6 +30,7 @@ def initDemographicFaceGroup():
         print("Loading previously initialized mapping...")
         with open('demographic_mapping_color.pickle', 'rb') as handle:
             mapping = pickle.load(handle)
+            print (mapping)
     else:
     #if True:
         print("Making mapping from scratch...")
