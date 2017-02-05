@@ -4,11 +4,13 @@ subKey = 'ad68d0b1e1f2455e9410495d5b1c9d2f'
 #THIS IS VERY BAD. TODO: FIX ASAP
 ssl._create_default_https_context = ssl._create_unverified_context
 
+
 def load_binary(file):
     with open(file, 'rb') as file:
         return file.read()
 
 def create_person(person_name, group_id, meta_data):
+    print("creating person") 
     headers = {
         # Request headers
         'Content-Type': 'application/json',
@@ -26,13 +28,6 @@ def create_person(person_name, group_id, meta_data):
 
     print(jObj)
     personId = jObj["personId"]
-
-    headers = {
-        # Request headers
-        'Content-Type': 'application/octet-stream',
-        'Ocp-Apim-Subscription-Key': subKey,
-    }
-
     conn.close()
 
     add_face(group_id, personId, meta_data)
@@ -72,17 +67,28 @@ def create_group(group_id, group_name):
 
     body = '{"name" : "%s"}' % group_name
 
-    try:
-        conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
-        conn.request("PUT", "/face/v1.0/persongroups/%s" % group_id, body, headers)
-        response = conn.getresponse()
-        data = response.read().decode('utf-8')
-        conn.close()
+    conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+    conn.request("POST", "/face/v1.0/detect?%s" % params, body, headers)
+    response = conn.getresponse()
+    data = response.read().decode('utf-8')
+    print(data)
 
-        return data == ""
-        
-    except Exception as e:
-        print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
+    jObj = json.loads(data)
+    genders = []
+    ids = []
+    metaData = []
+
+
+    for face in jObj:
+        genders.append(face['faceAttributes']['gender'])
+        ids.append(face['faceId'])
+        fr = face['faceRectangle']
+        rectString = "%s,%s,%s,%s" % (fr['left'],fr['top'],fr['width'],fr['height'])
+        metaData.append({"img" : body, "targetFace" : rectString})
+
+    conn.close()
+    return (genders,ids,metaData)
+
 
 def compare_ids(id1, id2):
     headers = {
@@ -99,16 +105,14 @@ def compare_ids(id1, id2):
         conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
         conn.request("POST", "/face/v1.0/verify", body, headers)
         response = conn.getresponse()
-        data = response.read()
+        data = response.read().decode('utf-8')
         jObj = json.loads(data)
-        
-        # print jObj
-
         conn.close()
+        return data == ""   
     except Exception as e:
         print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
 
-def face_detect(path, retFaceId='true', retFaceLandmarks='true', retFaceAttributes='age,gender'):
+def face_detect(path):
     headers = {
         # Request headers
         'Content-Type': 'application/octet-stream',
@@ -117,9 +121,9 @@ def face_detect(path, retFaceId='true', retFaceLandmarks='true', retFaceAttribut
 
     params = urllib.parse.urlencode({
         # Request parameters
-        'returnFaceId': retFaceId,
-        'returnFaceLandmarks': retFaceLandmarks,
-        'returnFaceAttributes': retFaceAttributes,
+        'returnFaceId': 'true',
+        'returnFaceLandmarks': 'false',
+        'returnFaceAttributes': 'age,gender',
     })
 
     body = load_binary(path)
@@ -129,7 +133,6 @@ def face_detect(path, retFaceId='true', retFaceLandmarks='true', retFaceAttribut
     response = conn.getresponse()
     data = response.read().decode('utf-8')
     print(data)
-
     jObj = json.loads(data)
     genders = []
     ids = []
@@ -163,96 +166,11 @@ def face_detect_raw(path, retFaceId='true', retFaceLandmarks='true', retFaceAttr
     body = load_binary(path)
     try:
         conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
-        conn.request("POST", "/face/v1.0/detect?%s" % params, body, headers)
+        conn.request("PUT", "/face/v1.0/persongroups/%s" % group_id, body, headers)
         response = conn.getresponse()
         data = response.read().decode('utf-8')
-        return data
-    except Exception as e:
-        print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
-
-def face_find_similar(faceId, demographicFaceList):
-    
-    headers = {
-        # Request headers
-        'Content-Type': 'application/json',
-        'Ocp-Apim-Subscription-Key': subKey,
-    }
-
-    params = urllib.parse.urlencode({
-    })
-
-    body = json.dumps({
-        "faceId": faceId,
-        'faceIds': demographicFaceList,
-        'maxNumOfCandidatesReturned': 10,
-        'mode': 'matchFace'
-        })
-
-    #print(body)
-
-    try:
-        conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
-        conn.request("POST", "/face/v1.0/findsimilars?%s" % params, body, headers)
-        response = conn.getresponse()
-        data = response.read()
-        print(data)
         conn.close()
-        return data
     except Exception as e:
         print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
-
-
-def face_detect(path, returnFaceId='true', returnFaceLandmarks='false', 
-    returnFaceAttributes='age,gender'):
-    headers = {
-        # Request headers
-        'Content-Type': 'application/octet-stream',
-        'Ocp-Apim-Subscription-Key': 'ad68d0b1e1f2455e9410495d5b1c9d2f',
-    }
-
-    params = urllib.parse.urlencode({
-        # Request parameters
-        'returnFaceId': returnFaceId,
-        'returnFaceLandmarks': returnFaceLandmarks,
-        'returnFaceAttributes': returnFaceAttributes,
-    })
-
-    body = load_binary(path)
-
-    try:
-        conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
-        conn.request("POST", "/face/v1.0/detect?%s" % params, body, headers)
-        response = conn.getresponse()
-        data = response.read()
-        conn.close()
-        return data
-    except Exception as e:
-        print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
-
-
-
-
-
-def main():
-    demographic_mapping
-    data = face_detect("003.jpg")
-
-    #demographicFaceGroup = initDemographicFaceGroup()
-    jObj = json.load(data)
-    faceIds = []
-    for face in jObj:
-        faceIds.append(face['faceId'])
-
-    print (faceIds)
-    return
     
-
-    # grObj = json.loads(groups)
-
-
-
-    return 0
-
-if __name__ == "__main__":
-    main()
 

@@ -51,7 +51,7 @@ def initDemographicFaceGroup():
             for file in os.listdir(os.path.join(data_dir, dirname)):
                 full_path = os.path.join(data_dir,dirname,file)
                 if os.path.isfile(full_path):
-                    face_detect_data = analyzer.face_detect(full_path, 'true', 'false', '')
+                    face_detect_data = analyzer.face_detect_raw(full_path, 'true', 'false', '')
                     detect_json = json.loads(face_detect_data)
                     for face in detect_json:
                         faceId = face['faceId']
