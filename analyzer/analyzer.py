@@ -42,6 +42,7 @@ def face_detect(path, returnFaceId='true', returnFaceLandmarks='false',
 
 
 def main():
+    demographic_mapping
     data = face_detect("003.jpg")
 
     #demographicFaceGroup = initDemographicFaceGroup()
