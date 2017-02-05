@@ -8,6 +8,12 @@ import json
 
 # faceIds is a list of faceIds (returned from faceFind)
 
+raceMasterList = ['american_indian_alaskan_native',
+'asian',
+'black_african_american',
+'native_hawaiian_other_pacific_islander',
+'white',
+'hispanic_latino']
 
 # Pythonic enum?
 class RaceGroup(Enum):
@@ -22,16 +28,16 @@ def initDemographicFaceGroup():
     print("called init")
     data_dir = '../demographic_faces/'
     flag_path = os.path.join(data_dir, 'flag.txt')
-    '''
+   
     with open(flag_path, 'r') as file:
-    f = file.readline()
+        f = file.readline()
     # we've already populated the demographics, read it from the pickle file
     if len(f) > 4:
         print("Loading previously initialized mapping...")
         with open('demographic_mapping_color.pickle', 'rb') as handle:
             mapping = pickle.load(handle)
-    else:'''
-    if True:
+    else:
+    #if True:
         print("Making mapping from scratch...")
         mapping = {
             RaceGroup.american_indian_alaskan_native: [],
@@ -103,19 +109,8 @@ def guessRace(faceId, demographicFaceMapping):
         matchingFaceIds[groupToIdx[raceGroup]] += match['confidence']
     #print(matchingFaceIds)
     mostLikelyRace = matchingFaceIds.index(max(matchingFaceIds))
-    if mostLikelyRace == 0:
-        return RaceGroup.american_indian_alaskan_native
-    elif mostLikelyRace == 1:
-        return RaceGroup.asian
-    elif mostLikelyRace == 2:
-        return RaceGroup.black_african_american
-    elif mostLikelyRace == 3:
-        return RaceGroup.native_hawaiian_other_pacific_islander
-    elif mostLikelyRace == 4:
-        return RaceGroup.white
-    else:
-        assert(mostLikelyRace == 5)
-        return RaceGroup.hispanic_latino
+    return mostLikelyRace
+    
 
 
 # SO LIT SO HYPE
@@ -123,12 +118,12 @@ def analyze(num_frames, folder_path):
     group_id = group_id = str(uuid.uuid4())
     demographicFaceGroup = initDemographicFaceGroup()
     raceCount = {
-            RaceGroup.american_indian_alaskan_native: 0,
-            RaceGroup.asian: 0,
-            RaceGroup.black_african_american: 0,
-            RaceGroup.native_hawaiian_other_pacific_islander: 0,
-            RaceGroup.white: 0,
-            RaceGroup.hispanic_latino: 0
+            0: 0,
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0
         }
 
 
@@ -196,16 +191,23 @@ def analyze(num_frames, folder_path):
         i = i + 1
         pass
 
+
+
     avg_male = male_frames / frames_with_people
     avg_female = female_frames / frames_with_people
 
-    
     stats = {"avg_male" : avg_male, "avg_female" : avg_female, "num_male" : num_males, "num_female" : num_females}
 
-    return stats
+    race_stats = ""
+
+    for i in range(len(raceCount)):
+        race_stats += ("estimated_"+raceMasterList[i]+": "+str(raceCount[i])+"\n")
+            
+
+    return (stats, race_stats)
 
 def main():
-    print(analyze(24, "img/v2"))
+    print(analyze(10, "img/v2"))
     return 0
 
 if __name__ == "__main__":
