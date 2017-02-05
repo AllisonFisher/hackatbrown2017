@@ -55,7 +55,7 @@ def main(argv):
   num_frames = len([f for f in os.listdir(frames_path)
                 if os.path.isfile(os.path.join(frames_path, f))])
 
-  race.analyze(num_frames, frames_path)
+  print(race.analyze(num_frames, frames_path))
  
 
 if __name__ == "__main__":

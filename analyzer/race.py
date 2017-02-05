@@ -180,7 +180,9 @@ def analyze(num_frames, folder_path):
                             num_males = num_males + 1
                         elif gender == "female":
                             num_females = num_females + 1
+                        break
                     i = i + 1
+                    
                          
 
         pass

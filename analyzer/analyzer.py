@@ -31,10 +31,11 @@ def identify_ids_in_group(face_ids, group_id, meta_datas):
             personToAdd = face["candidates"][0]["personId"]
             add_face(group_id, personToAdd, meta_datas[face["faceId"]])
         else:
-            create_person("person", group_id, meta_datas[face["faceId"]])
-            peopleAdded.append(face["faceId"])
-
-    train_group(group_id) 
+            added = create_person("person", group_id, meta_datas[face["faceId"]])
+            if added:
+                peopleAdded.append(face["faceId"])
+    if len(peopleAdded) > 0:
+        train_group(group_id) 
     return peopleAdded       
             
 
@@ -76,9 +77,9 @@ def create_person(person_name, group_id, meta_data):
     added = add_face(group_id, personId, meta_data)
 
     if not added:
-        delete_person(personI, group_id)
+        delete_person(personId, group_id)
 
-    return personId
+    return added
 
 def delete_person(person_id, group_id):
     headers = {
@@ -90,7 +91,7 @@ def delete_person(person_id, group_id):
     body = ""
 
     conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
-    conn.request("POST", "/face/v1.0/persongroups/%s/persons/%i" % (group_id, person_id), body, headers)
+    conn.request("POST", "/face/v1.0/persongroups/%s/persons/%s" % (group_id, person_id), body, headers)
     response = conn.getresponse()
     data = response.read().decode('utf-8')
     
