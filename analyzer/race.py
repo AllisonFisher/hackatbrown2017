@@ -117,7 +117,7 @@ def guessRace(faceId, demographicFaceMapping):
 
 
 # SO LIT SO HYPE
-def main():
+def analyze(num_frames, folder_path):
     group_id = group_id = str(uuid.uuid4())
     demographicFaceGroup = initDemographicFaceGroup()
     raceCount = {
@@ -204,6 +204,10 @@ def main():
 
     print("Average per frame - m: %s, f: %s" % (avg_male, avg_female))
     print(list(set(ids)))
+    return 0
+
+def main():
+    analyze(24, "img/v2")
     return 0
 
 if __name__ == "__main__":
