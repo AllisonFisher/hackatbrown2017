@@ -55,8 +55,8 @@
               <a id="enter_url"></a>
                 <h1 id="homeHeading">Diversity Scorecard</h1>
                 <hr>
-                <p>Get information about a YouTube video by entering the URL below.</p>
-                <form action="run.php" method="post">
+                <p>Get get a diversity score for a YouTube video by entering its URL below.</p>
+                <form action="results.php" method="post">
                   <h2>Enter your video URL below:</h2>
                   <input type="url" name="url" size="50" style="color:#333"><br><br>
                 <input type="submit" value="Submit" class="btn btn-primary btn-xl page-scroll">
@@ -72,6 +72,9 @@
                     <h2 class="section-heading">About the Project</h2>
                     <hr class="light">
                     <p class="text-faded">Using Microsoft APIs and a custom pipeline, our project will generate metrics on publicly-accessible videos, displaying information about gender/ethnicity representation.</p>
+                    <p class="text-faded">Our Motivation: We want to fight unconscious bias by alerting people to diversity trends in the media they consume on a daily basis.</p>
+                    <p class="text-faded">We use the Face API from Microsoft's Cognitive Services to track people across frames and determine the gender of each person. We also estimate a racial category (using the categories for the United States Office of Management and Budget 1997 guidelines) by comparing each face to a sample of faces representing each racial category, and reporting which category had the highest confidence matches.</p>
+                    <a class="github-button" href="https://github.com/AllisonFisher/hackatbrown2017" data-style="mega" aria-label="Star AllisonFisher/hackatbrown2017 on GitHub">Star us on GitHub!</a>
                 </div>
             </div>
         </div>
@@ -142,7 +145,9 @@
 
     <!-- Theme JavaScript -->
     <script src="js/creative.min.js"></script>
-
+    
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
 </body>
 
 </html>

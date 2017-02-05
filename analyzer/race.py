@@ -22,14 +22,16 @@ def initDemographicFaceGroup():
     print("called init")
     data_dir = '../demographic_faces/'
     flag_path = os.path.join(data_dir, 'flag.txt')
+    '''
     with open(flag_path, 'r') as file:
-        f = file.readline()
+    f = file.readline()
     # we've already populated the demographics, read it from the pickle file
     if len(f) > 4:
         print("Loading previously initialized mapping...")
         with open('demographic_mapping_color.pickle', 'rb') as handle:
             mapping = pickle.load(handle)
-    else:
+    else:'''
+    if True:
         print("Making mapping from scratch...")
         mapping = {
             RaceGroup.american_indian_alaskan_native: [],
@@ -90,7 +92,7 @@ def guessRace(faceId, demographicFaceMapping):
     }
     flatten = lambda l: [item for sublist in l for item in sublist]
     demographicFaceList = flatten(list(demographicFaceMapping.values()))
-    data = analyzer.face_find_similar(faceId, demographicFaceList)
+    data = analyzer.face_find_similar(faceId, demographicFaceList).decode('utf-8')
     results = json.loads(data)
     matchingFaceIds = [0 for i in range(6)]
     count = 0
@@ -129,7 +131,6 @@ def analyze(num_frames, folder_path):
             RaceGroup.hispanic_latino: 0
         }
 
-    num_frames = 24
 
     analyzer.create_group(group_id, "gender group")
 
@@ -148,7 +149,7 @@ def analyze(num_frames, folder_path):
     first = False
 
     for x in range(1,num_frames + 1):
-        results = analyzer.face_detect("img/v2/%03d.jpg" % x)   
+        results = analyzer.face_detect("%s/%03d.jpg" % (folder_path, x))   
         genders.extend(results[0])
         ids.extend(results[1])
         metaDatas.extend(results[2])
@@ -184,10 +185,6 @@ def analyze(num_frames, folder_path):
 
         pass
 
-    print("This many people: %s. %s males, %s females." % (faceId, num_males, num_females))
-    print("Race data: ")
-    print(raceCount)
-
     i = 0
     for gender in genders:  
         if gender == "male":
@@ -202,12 +199,13 @@ def analyze(num_frames, folder_path):
     avg_male = male_frames / frames_with_people
     avg_female = female_frames / frames_with_people
 
-    print("Average per frame - m: %s, f: %s" % (avg_male, avg_female))
-    print(list(set(ids)))
-    return 0
+    
+    stats = {"avg_male" : avg_male, "avg_female" : avg_female, "num_male" : num_males, "num_female" : num_females}
+
+    return stats
 
 def main():
-    analyze(24, "img/v2")
+    print(analyze(24, "img/v2"))
     return 0
 
 if __name__ == "__main__":
