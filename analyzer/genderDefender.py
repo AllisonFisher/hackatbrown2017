@@ -2,9 +2,9 @@ from __future__ import division
 import analyzer
 
 def main():
-	group_id = "id8"
+	group_id = "id15"
 
-	num_frames = 66
+	num_frames = 24
 
 	analyzer.create_group(group_id, "gender group")
 
@@ -13,31 +13,51 @@ def main():
 	male_frames = 0
 	female_frames = 0
 
+	num_males = 0
+	num_females = 0
+
 	ids = []
 	genders = []
 	metaDatas = []
 
-	personId = 0
 	first = False
 
 	for x in range(1,num_frames + 1):
-		results = analyzer.face_detect("img/ot/%03d.jpg" % x)	
+		results = analyzer.face_detect("img/v2/%03d.jpg" % x)	
 		genders.extend(results[0])
 		ids.extend(results[1])
 		metaDatas.extend(results[2])
 		if len(results[0]) > 0 and first == False:
 			first = True
-                        # On the first pass, create a new person for each
-			personId = personId + 1
+            # On the first pass, create a new person for each
 			for i in range(0,len(genders)):
-                                print(analyzer.create_person("person%s" % personId, group_id, metaDatas[i]))           
-                                pass
+				gender = results[0][i]
+				if gender == "male":
+					num_males = num_males + 1
+				elif gender == "female":
+					num_females = num_females + 1
+				print(analyzer.create_person("person", group_id, metaDatas[i]))           
+				pass
 			analyzer.train_group(group_id)
 			pass
 		elif len(results[0]) > 0:
-			analyzer.identify_ids_in_group(results[1], group_id, results[3])
-			pass
+			peopleAdded = analyzer.identify_ids_in_group(results[1], group_id, results[3])
+
+			for person in peopleAdded:
+				i = 0
+				for personId in results[1]:
+					if personId == results[1][i]:
+						gender = results[0][i]
+						if gender == "male":
+							num_males = num_males + 1
+						elif gender == "female":
+							num_females = num_females + 1
+					i = i + 1
+						 
+
 		pass
+
+	print("This many people: %s. %s males, %s females." % (personId, num_males, num_females))
 
 	i = 0
 	for gender in genders:	
@@ -50,10 +70,10 @@ def main():
 		i = i + 1
 		pass
 
-	avg_male = int(round(male_frames / frames_with_people))
-	avg_female = int(round(female_frames / frames_with_people))
+	avg_male = male_frames / frames_with_people
+	avg_female = female_frames / frames_with_people
 
-	print("m: %s, f: %s" % (avg_male, avg_female))
+	print("Average per frame - m: %s, f: %s" % (avg_male, avg_female))
 	print(list(set(ids)))
 	return 0
 
