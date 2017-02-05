@@ -77,13 +77,17 @@ if (preg_match("#(?<=v=)[a-zA-Z0-9-]+(?=&)|(?<=v\/)[^&\n]+(?=\?)|(?<=v=)[^&\n]+|
               <a id="results"></a>
                 <h1 id="homeHeading">Diversity Scorecard Results</h1>
                 <hr>
-                <p>Loading...<br>
-                In the interim, watch a preview of your video below!</p>
+                <p><h3>Loading...</h3>This may take a minute, please be patient!<br>
+                    In the interim, you can watch your video below!</p>
                 
-                <iframe width="420" height="315" 
+                <iframe width="450" height="338" 
                     src="https://www.youtube.com/embed/<?=$yt_id;?>?autoplay=1">
                 </iframe>
 
+
+		<iframe width="1000" height="280"
+                    src="cat.php?file=output.txt">
+                </iframe>
                 <iframe width="420" height="315" 
                     src="run.php?url=<?=$yt_url;?>">
                 </iframe>
