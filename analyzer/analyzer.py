@@ -50,7 +50,7 @@ def add_face(group_id, personId, meta_data):
     'targetFace': meta_data["targetFace"],
     })
 
-    body = load_binary('img/002.jpg')
+    body = meta_data["img"]
 
     urlStr = '/face/v1.0/persongroups/%s/persons/%s/persistedFaces?%s' % (group_id, personId, params)
 
@@ -140,7 +140,7 @@ def face_detect(path):
         ids.append(face['faceId'])
         fr = face['faceRectangle']
         rectString = "%s,%s,%s,%s" % (fr['left'],fr['top'],fr['width'],fr['height'])
-        metaData.append({"img" : path, "targetFace" : rectString})
+        metaData.append({"img" : body, "targetFace" : rectString})
 
     conn.close()
     return (genders,ids,metaData)
