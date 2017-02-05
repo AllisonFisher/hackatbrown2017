@@ -1,6 +1,6 @@
 
 ########### Python 2.7 #############
-import http.client, urllib.request, urllib.parse, urllib.error, base64, json, binascii
+import http.client, urllib, base64, json, binascii
 
 subKey = 'ad68d0b1e1f2455e9410495d5b1c9d2f'
 
@@ -18,13 +18,12 @@ def create_person(person_name, group_id, meta_data):
     body = '{"name" : "%s"}' % person_name
 
 
-    conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+    conn = httplib.HTTPSConnection('westus.api.cognitive.microsoft.com')
     conn.request("POST", "/face/v1.0/persongroups/%s/persons" % group_id, body, headers)
     response = conn.getresponse()
-    data = response.read().decode('utf-8')
+    data = response.read()
     jObj = json.loads(data)
 
-    print(jObj)
     personId = jObj["personId"]
 
     headers = {
@@ -54,12 +53,11 @@ def add_face(group_id, personId, meta_data):
 
     urlStr = '/face/v1.0/persongroups/%s/persons/%s/persistedFaces?%s' % (group_id, personId, params)
 
-    conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
+    conn = httplib.HTTPSConnection('westus.api.cognitive.microsoft.com')
     conn.request("POST", urlStr, body, headers)
     response = conn.getresponse()
-    data = response.read().decode('utf-8')
+    data = response.read()
 
-    print(data)
     conn.close()
 
 
@@ -82,7 +80,7 @@ def create_group(group_id, group_name):
         return data == ""
         
     except Exception as e:
-        print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
 def compare_ids(id1, id2):
     headers = {
@@ -106,7 +104,7 @@ def compare_ids(id1, id2):
 
         conn.close()
     except Exception as e:
-        print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
+        print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
 def face_detect(path):
     headers = {
@@ -127,8 +125,7 @@ def face_detect(path):
     conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
     conn.request("POST", "/face/v1.0/detect?%s" % params, body, headers)
     response = conn.getresponse()
-    data = response.read().decode('utf-8')
-    print(data)
+    data = response.read()
     jObj = json.loads(data)
     genders = []
     ids = []
