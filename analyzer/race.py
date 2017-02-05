@@ -64,12 +64,16 @@ def initDemographicFaceGroup():
                     face_detect_data = analyzer.face_detect_raw(full_path, 'true', 'false', '')
                     detect_json = json.loads(face_detect_data)
                     for face in detect_json:
-                        faceId = face['faceId']
-                        key = dirs[dirname]
-                        mapping[key].append(faceId)
+                        #print (face)
+                        try:
+                            faceId = face['faceId']
+                            key = dirs[dirname]
+                            mapping[key].append(faceId)
+                        except:
+                            pass
         
-       # with open('demographic_mapping_color.pickle', 'wb') as handle:
-        #    pickle.dump(mapping, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        '''with open('demographic_mapping_color.pickle', 'wb') as handle:
+            pickle.dump(mapping, handle, protocol=pickle.HIGHEST_PROTOCOL)'''
 
         with open(flag_path, 'w') as file:
             file.write('FLAG!\n')
