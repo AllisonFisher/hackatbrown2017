@@ -116,14 +116,14 @@ def guessRace(faceId, demographicFaceMapping):
 def main():
     demographicMapping = initDemographicFaceGroup()
     #print (demographicMapping)
-    data = analyzer.face_detect_raw("001.jpg")
+    data = analyzer.face_detect_raw("003.jpg")
     jsonObj = json.loads(data)
-    faces = []
+    guesses = []
     for face in jsonObj:
-        faces.append(face['faceId'])
-    testFace = faces[0]
-    result = guessRace(testFace, demographicMapping)
-    print(result)
+        guess = (guessRace(face['faceId'], demographicMapping))
+        guesses.append(guess)
+    print (guesses)
+
 
 
 if __name__ == '__main__':
