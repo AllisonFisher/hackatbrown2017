@@ -18,6 +18,8 @@ def identify_ids_in_group(face_ids, group_id, meta_datas):
 
     body = json.dumps({"personGroupId" : group_id, "faceIds" : face_ids})
 
+    peopleAdded = []
+
     conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
     conn.request("POST", "/face/v1.0/identify", body, headers)
     response = conn.getresponse()
@@ -28,7 +30,12 @@ def identify_ids_in_group(face_ids, group_id, meta_datas):
         if(len(face["candidates"]) > 0):
             personToAdd = face["candidates"][0]["personId"]
             add_face(group_id, personToAdd, meta_datas[face["faceId"]])
-    train_group(group_id)        
+        else:
+            create_person("person", group_id, meta_datas[face["faceId"]])
+            peopleAdded.append(face["faceId"])
+
+    train_group(group_id) 
+    return peopleAdded       
             
 
 def train_group(group_id):
