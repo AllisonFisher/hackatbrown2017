@@ -1,37 +1,10 @@
 import os
+import analyzerDanny as analyzer 
 import pickle
 from enum import Enum
+import json
 
 # faceIds is a list of faceIds (returned from faceFind)
-
-
-def face_find_similar(faceId, demographicFaceList):
-    import http.client, urllib.request, urllib.parse, urllib.error, base64
-    headers = {
-        # Request headers
-        'Content-Type': 'application/json',
-        'Ocp-Apim-Subscription-Key': '{subscription key}',
-    }
-
-    params = urllib.parse.urlencode({
-    })
-
-    body = json.dumps({
-        "faceId": faceId,
-        "faceIds": demographicFaceList,
-        "maxNumOfCandidatesReturned": 20,
-        "mode": "matchFace"
-        })
-
-    try:
-        conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
-        conn.request("POST", "/face/v1.0/findsimilars?%s" % params, "{body}", headers)
-        response = conn.getresponse()
-        data = response.read()
-        print(data)
-        conn.close()
-    except Exception as e:
-        print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
 
 
 # Pythonic enum?
@@ -44,16 +17,18 @@ class RaceGroup(Enum):
     hispanic_latino = 5
 
 def initDemographicFaceGroup():
+    print("called init")
     data_dir = '../demographic_faces/'
     flag_path = os.path.join(data_dir, 'flag.txt')
     with open(flag_path, 'r') as file:
-        f = file.readline
+        f = file.readline()
     # we've already populated the demographics, read it from the pickle file
     if len(f) > 4:
-        with open('demographic_mapping.pickle', 'rb') as handle:
+        print("Loading previously initialized mapping...")
+        with open('demographic_mapping_color.pickle', 'rb') as handle:
             mapping = pickle.load(handle)
     else:
-        print((1/0))
+        print("Making mapping from scratch...")
         mapping = {
             RaceGroup.american_indian_alaskan_native: [],
             RaceGroup.asian: [],
@@ -63,49 +38,31 @@ def initDemographicFaceGroup():
             RaceGroup.hispanic_latino: []
         }
 
-        # cry
-        for file in os.path.join(data_dir, 'american-indian-alaskan-native'):
-            if os.path.isfile(file):
-                face_detect_data = face_detect(file, 'true', 'false', '')
-                detect_json = json.loads(face_detect_data)
-                faceId = detect_json['faceId']
-                mapping[RaceGroup.american_indian_alaskan_native].append(faceId)
-        for file in os.path.join(data_dir, 'asian'):
-            if os.path.isfile(file):
-                face_detect_data = face_detect(file, 'true', 'false', '')
-                detect_json = json.loads(face_detect_data)
-                faceId = detect_json['faceId']
-                mapping[RaceGroup.asian].append(faceId)
-        for file in os.path.join(data_dir, 'black-african-american'):
-            if os.path.isfile(file):
-                face_detect_data = face_detect(file, 'true', 'false', '')
-                detect_json = json.loads(face_detect_data)
-                faceId = detect_json['faceId']
-                mapping[RaceGroup.black_african_american].append(faceId)
-        for file in os.path.join(data_dir, 'native-hawaiian-other-pacific-islander'):
-            if os.path.isfile(file):
-                face_detect_data = face_detect(file, 'true', 'false', '')
-                detect_json = json.loads(face_detect_data)
-                faceId = detect_json['faceId']
-                mapping[RaceGroup.native_hawaiian_other_pacific_islander].append(faceId)
-        for file in os.path.join(data_dir, 'white'):
-            if os.path.isfile(file):
-                face_detect_data = face_detect(file, 'true', 'false', '')
-                detect_json = json.loads(face_detect_data)
-                faceId = detect_json['faceId']
-                mapping[RaceGroup.white].append(faceId)
-        for file in os.path.join(data_dir, 'hispanic-latino'):
-            if os.path.isfile(file):
-                face_detect_data = face_detect(file, 'true', 'false', '')
-                detect_json = json.loads(face_detect_data)
-                faceId = detect_json['faceId']
-                mapping[RaceGroup.hispanic_latino].append(faceId)
+        dirs = {
+            'american-indian-alaskan-native': RaceGroup.american_indian_alaskan_native, 
+            'asian': RaceGroup.asian, 
+            'black-african-american': RaceGroup.black_african_american,
+            'native-hawaiian-other-pacific-islander': RaceGroup.native_hawaiian_other_pacific_islander, 
+            'white': RaceGroup.white,
+            'hispanic-latino': RaceGroup.hispanic_latino
+        }
 
-        with open('demographic_mapping.pickle', 'wb') as handle:
+        for dirname in dirs:
+            for file in os.listdir(os.path.join(data_dir, dirname)):
+                full_path = os.path.join(data_dir,dirname,file)
+                if os.path.isfile(full_path):
+                    face_detect_data = analyzer.face_detect_raw(full_path, 'true', 'false', '')
+                    detect_json = json.loads(face_detect_data)
+                    for face in detect_json:
+                        faceId = face['faceId']
+                        key = dirs[dirname]
+                        mapping[key].append(faceId)
+        
+        with open('demographic_mapping_color.pickle', 'wb') as handle:
             pickle.dump(mapping, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
         with open(flag_path, 'w') as file:
-            file.writeline('FLAG!')
+            file.write('FLAG!\n')
     return mapping
             
 
@@ -122,7 +79,7 @@ def guessRace(faceId, demographicFaceList):
     # initialize the demographicFaceList
     demographicFaceList = initDemographicFaceList()
     # 
-    data = face_find_similar(faceId, demographicFaceList)
+    data = analyzer.face_find_similar(faceId, demographicFaceList)
     results = json.loads(data)
     matchingFaceIds = [0 for i in range(6)]
     count = 0
@@ -145,4 +102,11 @@ def guessRace(faceId, demographicFaceList):
     else:
         assert(mostLikelyRace == 5)
         return RaceGroup.hispanic_latino
-    #
+
+def main():
+    demographicMapping = initDemographicFaceGroup()
+    print (demographicMapping)
+    print ("Hi!")
+
+if __name__ == '__main__':
+    main()
