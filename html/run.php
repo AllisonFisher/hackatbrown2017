@@ -18,7 +18,7 @@ $yt_url = _get('url');
 
 if ($yt_url != null) {
   echo "<pre>";
-  echo run_python("analyzer/start.py --input $yt_url --fps $fps");
+  echo run_python("../analyzer/start.py --input $yt_url --fps $fps");
   echo "</pre>";
 } else {
   echo "Nah.";

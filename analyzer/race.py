@@ -105,7 +105,7 @@ def guessRace(faceId, demographicFaceMapping):
         matchId = match['faceId']
         raceGroup = getRaceGroup(matchId, demographicFaceMapping)
         assert(raceGroup != None)
-        matchingFaceIds[groupToIdx[raceGroup]] += match['confidence']
+        matchingFaceIds[raceGroup] += match['confidence']
     print(matchingFaceIds)
     mostLikelyRace = matchingFaceIds.index(max(matchingFaceIds))
     return mostLikelyRace
