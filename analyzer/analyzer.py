@@ -25,7 +25,7 @@ def identify_ids_in_group(face_ids, group_id, meta_datas):
     response = conn.getresponse()
     data = response.read().decode('utf-8')
     jObj = json.loads(data)
-    #print(jObj)
+    print(jObj)
     for face in jObj:
         if(len(face["candidates"]) > 0):
             personToAdd = face["candidates"][0]["personId"]
@@ -99,7 +99,7 @@ def add_face(group_id, personId, meta_data):
     response = conn.getresponse()
     data = response.read().decode('utf-8')
 
-    #print(data)
+    print(data)
     conn.close()
 
 
@@ -165,14 +165,14 @@ def face_find_similar(faceId, demographicFaceList):
         'mode': 'matchFace'
         })
 
-    #print(body)
+    print(body)
 
     try:
         conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
         conn.request("POST", "/face/v1.0/findsimilars?%s" % params, body, headers)
         response = conn.getresponse()
         data = response.read()
-        #print(data)
+        print(data)
         conn.close()
         return data
     except Exception as e:
@@ -198,7 +198,7 @@ def face_detect(path):
     conn.request("POST", "/face/v1.0/detect?%s" % params, body, headers)
     response = conn.getresponse()
     data = response.read().decode('utf-8')
-    #print(data)
+    print(data)
     jObj = json.loads(data)
     genders = []
     ids = []
