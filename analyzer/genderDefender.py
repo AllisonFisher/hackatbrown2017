@@ -2,7 +2,7 @@ from __future__ import division
 import analyzer
 
 def main():
-	num_frames = 16
+	num_frames = 66
 
 	frames_with_people = num_frames
 
@@ -11,11 +11,13 @@ def main():
 
 	ids = []
 	genders = []
+	metaDatas = []
 
 	for x in xrange(1,num_frames + 1):
-		results = analyzer.face_detect("img/%03d.jpg" % x)	
+		results = analyzer.face_detect("img/ot/%03d.jpg" % x)	
 		genders.extend(results[0])
 		ids.extend(results[1])
+		metaDatas.extend(results[2])
 		pass
 
 	for gender in genders:	
