@@ -1,8 +1,13 @@
 from __future__ import division
 import analyzer
+import race as Race
 
 def main():
-	group_id = "id15"
+	group_id = "hella"
+    demographicFaceGroup = Race.initDemographicFaceGroup()
+    raceToIdx = {
+        Race.
+    }
 
 	num_frames = 24
 
@@ -45,8 +50,9 @@ def main():
 
 			for person in peopleAdded:
 				i = 0
-				for personId in results[1]:
-					if personId == results[1][i]:
+				for faceId in results[1]:
+                    raceGuess = Race.guessRace(faceId, demographicFaceGroup)
+					if faceId == results[1][i]:
 						gender = results[0][i]
 						if gender == "male":
 							num_males = num_males + 1
