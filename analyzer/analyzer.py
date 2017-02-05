@@ -73,10 +73,10 @@ def create_group(group_id, group_name):
     body = '{"name" : "%s"}' % group_name
 
     try:
-        conn = httplib.HTTPSConnection('westus.api.cognitive.microsoft.com')
+        conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
         conn.request("PUT", "/face/v1.0/persongroups/%s" % group_id, body, headers)
         response = conn.getresponse()
-        data = response.read()
+        data = response.read().decode('utf-8')
         conn.close()
 
         return data == ""
@@ -96,7 +96,7 @@ def compare_ids(id1, id2):
     # print body
 
     try:
-        conn = httplib.HTTPSConnection('westus.api.cognitive.microsoft.com')
+        conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
         conn.request("POST", "/face/v1.0/verify", body, headers)
         response = conn.getresponse()
         data = response.read()
