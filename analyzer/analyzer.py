@@ -1,5 +1,8 @@
-import http.client, urllib.request, urllib.parse, urllib.error, base64, json, binascii
+import http.client, urllib.request, urllib.parse, urllib.error, base64, json, binascii, ssl
 subKey = 'ad68d0b1e1f2455e9410495d5b1c9d2f'
+
+#THIS IS VERY BAD. TODO: FIX ASAP
+ssl._create_default_https_context = ssl._create_unverified_context
 
 def load_binary(file):
     with open(file, 'rb') as file:
@@ -164,8 +167,7 @@ def face_detect_raw(path, retFaceId='true', retFaceLandmarks='true', retFaceAttr
         response = conn.getresponse()
         data = response.read().decode('utf-8')
         return data
-    except:
-        except Exception as e:
+    except Exception as e:
         print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
 
 def face_find_similar(faceId, demographicFaceList):
@@ -173,7 +175,7 @@ def face_find_similar(faceId, demographicFaceList):
     headers = {
         # Request headers
         'Content-Type': 'application/json',
-        'Ocp-Apim-Subscription-Key': '{subscription key}',
+        'Ocp-Apim-Subscription-Key': subKey,
     }
 
     params = urllib.parse.urlencode({
@@ -181,30 +183,24 @@ def face_find_similar(faceId, demographicFaceList):
 
     body = json.dumps({
         "faceId": faceId,
-        "faceIds": demographicFaceList,
-        "maxNumOfCandidatesReturned": 10,
-        "mode": "matchFace"
+        'faceIds': demographicFaceList,
+        'maxNumOfCandidatesReturned': 10,
+        'mode': 'matchFace'
         })
+
+    #print(body)
 
     try:
         conn = http.client.HTTPSConnection('westus.api.cognitive.microsoft.com')
-        conn.request("POST", "/face/v1.0/findsimilars?%s" % params, "{body}", headers)
+        conn.request("POST", "/face/v1.0/findsimilars?%s" % params, body, headers)
         response = conn.getresponse()
         data = response.read()
         print(data)
         conn.close()
+        return data
     except Exception as e:
         print(("[Errno {0}] {1}".format(e.errno, e.strerror)))
-import http.client
-import urllib.request, urllib.parse, urllib.error 
-import base64
-import json
 
-import race
-
-def load_binary(file):
-    with open(file, 'rb') as file:
-        return file.read()
 
 def face_detect(path, returnFaceId='true', returnFaceLandmarks='false', 
     returnFaceAttributes='age,gender'):

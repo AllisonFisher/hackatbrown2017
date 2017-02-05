@@ -1,5 +1,5 @@
 import os
-import analyzerDanny as analyzer 
+import analyzer 
 import pickle
 from enum import Enum
 import json
@@ -51,7 +51,7 @@ def initDemographicFaceGroup():
             for file in os.listdir(os.path.join(data_dir, dirname)):
                 full_path = os.path.join(data_dir,dirname,file)
                 if os.path.isfile(full_path):
-                    face_detect_data = analyzer.face_detect_raw(full_path, 'true', 'false', '')
+                    face_detect_data = analyzer.face_detect(full_path, 'true', 'false', '')
                     detect_json = json.loads(face_detect_data)
                     for face in detect_json:
                         faceId = face['faceId']
@@ -69,26 +69,36 @@ def initDemographicFaceGroup():
 
 
 def getRaceGroup(faceId, demographic_mapping):
-    for group, arr in demographic_mapping:
+    for key in demographic_mapping:
+        arr = demographic_mapping[key]
         if faceId in arr:
-            return group
+            #print (key)
+            return key
     return None
 
 #assumes demographicFaceList has B/W photos
-def guessRace(faceId, demographicFaceList):
-    # initialize the demographicFaceList
-    demographicFaceList = initDemographicFaceList()
-    # 
+def guessRace(faceId, demographicFaceMapping):
+    groupToIdx = {
+        RaceGroup.american_indian_alaskan_native: 0,
+        RaceGroup.asian: 1,
+        RaceGroup.black_african_american: 2,
+        RaceGroup.native_hawaiian_other_pacific_islander: 3,
+        RaceGroup.white: 4,
+        RaceGroup.hispanic_latino: 5
+    }
+    flatten = lambda l: [item for sublist in l for item in sublist]
+    demographicFaceList = flatten(list(demographicFaceMapping.values()))
     data = analyzer.face_find_similar(faceId, demographicFaceList)
     results = json.loads(data)
     matchingFaceIds = [0 for i in range(6)]
     count = 0
     for match in results:
-        matchId = match['persistedFaceId']
-        raceGroup = getRaceGroup(matchId)
+        matchId = match['faceId']
+        raceGroup = getRaceGroup(matchId, demographicFaceMapping)
         assert(raceGroup != None)
-        matchingFaceIds[raceGroup] += match['confidence']
-    mostLikelyRace = results.index(max(results))
+        matchingFaceIds[groupToIdx[raceGroup]] += match['confidence']
+    #print(matchingFaceIds)
+    mostLikelyRace = matchingFaceIds.index(max(matchingFaceIds))
     if mostLikelyRace == 0:
         return RaceGroup.american_indian_alaskan_native
     elif mostLikelyRace == 1:
@@ -105,8 +115,16 @@ def guessRace(faceId, demographicFaceList):
 
 def main():
     demographicMapping = initDemographicFaceGroup()
-    print (demographicMapping)
-    print ("Hi!")
+    #print (demographicMapping)
+    data = analyzer.face_detect_raw("001.jpg")
+    jsonObj = json.loads(data)
+    faces = []
+    for face in jsonObj:
+        faces.append(face['faceId'])
+    testFace = faces[0]
+    result = guessRace(testFace, demographicMapping)
+    print(result)
+
 
 if __name__ == '__main__':
     main()
